@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StegoApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+361e9090749300c99d7e317eceea58338c4d3c5e")]
 [assembly: System.Reflection.AssemblyProductAttribute("StegoApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StegoApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -85,6 +85,32 @@ def test_pipeline_encode_and_decode_full_cycle(rsa_key_pair, high_res_cover_png_
     assert dec_result.stego_sha256 == enc_result.stego_sha256
 
 
+def test_pipeline_orchestration_without_explicit_passphrase(rsa_key_pair, high_res_cover_png_bytes):
+    """Verifies that auto-deriving stego seed from public/private key fingerprint works when passphrase is None."""
+    pub_pem, priv_pem = rsa_key_pair
+    secret_text = "AutoDeriveStegoSeedWithoutPassphrase"
+    cover_pixels, _ = ImageLoader.load_image(high_res_cover_png_bytes)
+
+    enc_result = StegoPipelineOrchestrator.encode_hybrid(
+        cover_pixels=cover_pixels,
+        payload_data=secret_text,
+        recipient_public_key_pem=pub_pem,
+        stego_passphrase=None,
+        security_level="Quality",
+        block_size=16,
+    )
+
+    dec_result = StegoPipelineOrchestrator.decode_hybrid(
+        stego_pixels=enc_result.stego_pixels,
+        recipient_private_key_pem=priv_pem,
+        stego_passphrase=None,
+        block_size=16,
+    )
+
+    assert dec_result.authenticated is True
+    assert dec_result.decrypted_text == secret_text
+
+
 def test_pipeline_security_profiles(rsa_key_pair, high_res_cover_png_bytes):
     """Verifies different security profiles ('Quality' vs 'Security')."""
     pub_pem, _ = rsa_key_pair

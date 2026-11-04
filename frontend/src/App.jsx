@@ -1223,6 +1223,53 @@ export default function App() {
                   >
                     <Download size={15} /> Download Lossless Stego PNG
                   </a>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (pipelineResult && pipelineResult.blob) {
+                        const stegoFile = new File([pipelineResult.blob], 'stego_hybrid_orchestrated.png', { type: 'image/png' });
+                        setPipelineDecodeFile(stegoFile);
+                        setPipelineDecodePreview(pipelineResult.downloadUrl);
+                        if (pipelineStegoKey) {
+                          setPipelineDecodeStegoKey(pipelineStegoKey);
+                        }
+                        if (vaultPrivateKey) {
+                          setPipelinePrivateKeyPem(vaultPrivateKey);
+                        } else if (user) {
+                          try {
+                            const res = await keyService.getMyPrivateKey();
+                            if (res && res.privateKeyPem) {
+                              setPipelinePrivateKeyPem(res.privateKeyPem);
+                              setVaultPrivateKey(res.privateKeyPem);
+                            }
+                          } catch {
+                            // Non-critical key load
+                          }
+                        }
+                        setPipelineDecodeError('');
+                        setPipelineDecodeResult(null);
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '8px',
+                      background: 'rgba(6, 182, 212, 0.15)',
+                      border: '1px solid #06b6d4',
+                      borderRadius: '6px',
+                      color: '#06b6d4',
+                      fontWeight: '700',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Zap size={15} /> Transfer Stego Image & Key to Decode Form
+                  </button>
                 </div>
               )}
             </div>
@@ -1258,14 +1305,19 @@ export default function App() {
                   <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)' }}>
                     Recipient RSA-4096 Private Key PEM (Required for Envelope Decapsulation)
                   </label>
-                  {user && (
+                  {(user || vaultPrivateKey) && (
                     <button
                       type="button"
                       onClick={async () => {
+                        if (vaultPrivateKey) {
+                          setPipelinePrivateKeyPem(vaultPrivateKey);
+                          return;
+                        }
                         try {
                           const res = await keyService.getMyPrivateKey();
                           if (res && res.privateKeyPem) {
                             setPipelinePrivateKeyPem(res.privateKeyPem);
+                            setVaultPrivateKey(res.privateKeyPem);
                           }
                         } catch (err) {
                           alert('Failed to retrieve private key: ' + (err.response?.data?.message || err.message));

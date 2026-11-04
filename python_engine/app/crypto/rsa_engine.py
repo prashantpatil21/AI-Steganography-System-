@@ -65,6 +65,24 @@ class RSACipher:
         return f"SHA256:{digest}"
 
     @classmethod
+    def get_public_key_pem(cls, private_key_pem: str, passphrase: Optional[str] = None) -> str:
+        """Derives the public key PEM string from an RSA private key PEM."""
+        pwd_bytes = passphrase.encode("utf-8") if passphrase else None
+        priv_key = cls.load_private_key(private_key_pem, password=pwd_bytes)
+        pub_pem = priv_key.public_key().public_bytes(
+            encoding=Encoding.PEM,
+            format=PublicFormat.SubjectPublicKeyInfo,
+        ).decode("utf-8")
+        return pub_pem
+
+    @classmethod
+    def get_key_fingerprint(cls, key_pem: str) -> str:
+        """Computes the SHA-256 fingerprint of an RSA public (or private) key."""
+        if "PRIVATE KEY" in key_pem:
+            key_pem = cls.get_public_key_pem(key_pem)
+        return cls.get_public_key_fingerprint(key_pem)
+
+    @classmethod
     def load_public_key(cls, public_key_pem: str) -> rsa.RSAPublicKey:
         """Loads an RSAPublicKey from a PEM-encoded string."""
         try:
